@@ -16,12 +16,26 @@ import {
 } from "./expenses.js";
 import { uploadReceiptPhoto } from "./drive.js";
 import { DEFAULT_CATEGORIES } from "./categories.js";
-import { ICON_MOON, ICON_SUN, ICON_LOGOUT, ICON_TRASH, ICON_CAMERA, ICON_RECEIPT, ICON_GOOGLE } from "./icons.js";
+import {
+  ICON_MOON,
+  ICON_SUN,
+  ICON_LOGOUT,
+  ICON_TRASH,
+  ICON_CAMERA,
+  ICON_RECEIPT,
+  ICON_GOOGLE,
+  ICON_GRID,
+  ICON_LIST,
+  ICON_CLOSE
+} from "./icons.js";
 
 const THEME_KEY = "dh_theme";
+const VIEW_MODE_KEY = "dh_view_mode";
 
 const state = {
   theme: localStorage.getItem(THEME_KEY) || "light",
+  // "list" (default, tampilan lama) atau "grid" (thumbnail ala Instagram).
+  viewMode: localStorage.getItem(VIEW_MODE_KEY) === "grid" ? "grid" : "list",
   authMode: "login",
   session: null,
   expenses: [],
@@ -47,6 +61,8 @@ const els = {
 
   // List
   screenList: document.getElementById("screen-list"),
+  viewToggle: document.getElementById("view-toggle"),
+  viewIcon: document.getElementById("view-icon"),
   themeToggle: document.getElementById("theme-toggle"),
   themeIcon: document.getElementById("theme-icon"),
   logoutBtn: document.getElementById("logout-btn"),
@@ -56,6 +72,20 @@ const els = {
   expenseListEmpty: document.getElementById("expense-list-empty"),
   expenseListWrap: document.getElementById("expense-list-wrap"),
   addExpenseFab: document.getElementById("add-expense-fab"),
+
+  // Modal popup foto (tampilan grid)
+  photoModal: document.getElementById("photo-modal"),
+  photoModalBackdrop: document.getElementById("photo-modal-backdrop"),
+  photoModalClose: document.getElementById("photo-modal-close"),
+  photoModalCloseIcon: document.getElementById("photo-modal-close-icon"),
+  photoModalImg: document.getElementById("photo-modal-img"),
+  photoModalNoPhoto: document.getElementById("photo-modal-no-photo"),
+  photoModalNoPhotoIcon: document.getElementById("photo-modal-no-photo-icon"),
+  photoModalCategory: document.getElementById("photo-modal-category"),
+  photoModalAmount: document.getElementById("photo-modal-amount"),
+  photoModalNote: document.getElementById("photo-modal-note"),
+  photoModalDate: document.getElementById("photo-modal-date"),
+  photoModalEditBtn: document.getElementById("photo-modal-edit-btn"),
 
   // Expense form
   screenExpense: document.getElementById("screen-expense"),
@@ -109,12 +139,20 @@ function setIcons() {
   els.logoutIcon.innerHTML = ICON_LOGOUT;
   els.deleteIcon.innerHTML = ICON_TRASH;
   els.cameraIcon.innerHTML = ICON_CAMERA;
+  els.photoModalCloseIcon.innerHTML = ICON_CLOSE;
+  els.photoModalNoPhotoIcon.innerHTML = ICON_RECEIPT;
 }
 
 function applyTheme() {
   document.documentElement.setAttribute("data-theme", state.theme);
   els.themeIcon.innerHTML = state.theme === "dark" ? ICON_SUN : ICON_MOON;
   document.getElementById("meta-theme-color").setAttribute("content", state.theme === "dark" ? "#000000" : "#ffffff");
+}
+
+// Ikon tombol toggle nunjukin tampilan yang akan DITUJU kalau diklik (sama
+// seperti pola tombol tema: nampilin ikon matahari waktu gelap, dst).
+function applyViewIcon() {
+  els.viewIcon.innerHTML = state.viewMode === "grid" ? ICON_LIST : ICON_GRID;
 }
 
 function showScreen(name) {
@@ -283,6 +321,15 @@ function renderExpenseList() {
   }
   els.expenseListEmpty.hidden = true;
 
+  if (state.viewMode === "grid") {
+    renderExpenseGrid();
+  } else {
+    renderExpenseListRows();
+  }
+}
+
+// Tampilan lama: baris per pengeluaran, klik langsung buka form edit.
+function renderExpenseListRows() {
   let currentDate = null;
   let listEl = null;
 
@@ -339,6 +386,93 @@ function renderExpenseList() {
 
     listEl.appendChild(item);
   }
+}
+
+// Tampilan baru: grid thumbnail 3 kolom ala Instagram, klik buka popup foto
+// + keterangan (bukan langsung ke form edit -- edit tetap bisa lewat tombol
+// "Edit" di dalam popup-nya).
+function renderExpenseGrid() {
+  let currentDate = null;
+  let gridEl = null;
+
+  for (const exp of state.expenses) {
+    if (exp.expense_date !== currentDate) {
+      currentDate = exp.expense_date;
+      const heading = document.createElement("div");
+      heading.className = "expense-date-heading";
+      heading.textContent = formatDateHeading(currentDate);
+      els.expenseListWrap.appendChild(heading);
+
+      gridEl = document.createElement("div");
+      gridEl.className = "expense-grid";
+      els.expenseListWrap.appendChild(gridEl);
+    }
+
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "expense-grid-item";
+    item.title = exp.note ? `${exp.category} -- ${exp.note}` : exp.category;
+
+    if (exp.receipt_url) {
+      const img = document.createElement("img");
+      img.src = exp.receipt_url;
+      img.alt = "";
+      img.loading = "lazy";
+      item.appendChild(img);
+    } else {
+      const placeholder = document.createElement("div");
+      placeholder.className = "expense-grid-item-placeholder";
+      placeholder.innerHTML = ICON_RECEIPT;
+      item.appendChild(placeholder);
+    }
+
+    const amountTag = document.createElement("span");
+    amountTag.className = "expense-grid-item-amount";
+    amountTag.textContent = formatRupiah(exp.amount);
+    item.appendChild(amountTag);
+
+    item.addEventListener("click", () => openPhotoModal(exp));
+
+    gridEl.appendChild(item);
+  }
+}
+
+// ---------- Modal popup foto (dipicu dari tampilan grid) ----------
+
+function openPhotoModal(exp) {
+  if (exp.receipt_url) {
+    els.photoModalImg.src = exp.receipt_url;
+    els.photoModalImg.hidden = false;
+    els.photoModalNoPhoto.hidden = true;
+  } else {
+    els.photoModalImg.src = "";
+    els.photoModalImg.hidden = true;
+    els.photoModalNoPhoto.hidden = false;
+  }
+
+  els.photoModalCategory.textContent = exp.category;
+  els.photoModalAmount.textContent = formatRupiah(exp.amount);
+
+  if (exp.note) {
+    els.photoModalNote.hidden = false;
+    els.photoModalNote.textContent = exp.note;
+  } else {
+    els.photoModalNote.hidden = true;
+    els.photoModalNote.textContent = "";
+  }
+
+  els.photoModalDate.textContent = formatDateHeading(exp.expense_date);
+  els.photoModalEditBtn.onclick = () => {
+    closePhotoModal();
+    openEditExpense(exp);
+  };
+
+  els.photoModal.hidden = false;
+}
+
+function closePhotoModal() {
+  els.photoModal.hidden = true;
+  els.photoModalImg.src = "";
 }
 
 // ---------- Form tambah / edit ----------
@@ -504,6 +638,19 @@ function wireEvents() {
     applyTheme();
   });
 
+  els.viewToggle.addEventListener("click", () => {
+    state.viewMode = state.viewMode === "grid" ? "list" : "grid";
+    localStorage.setItem(VIEW_MODE_KEY, state.viewMode);
+    applyViewIcon();
+    renderExpenseList();
+  });
+
+  els.photoModalClose.addEventListener("click", closePhotoModal);
+  els.photoModalBackdrop.addEventListener("click", closePhotoModal);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !els.photoModal.hidden) closePhotoModal();
+  });
+
   els.logoutBtn.addEventListener("click", async () => {
     await signOut();
   });
@@ -532,6 +679,7 @@ function wireEvents() {
 async function main() {
   setIcons();
   applyTheme();
+  applyViewIcon();
   setAuthMode("login");
   wireEvents();
 

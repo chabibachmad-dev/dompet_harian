@@ -18,3 +18,10 @@ export const ICON_RECEIPT = `<svg width="19" height="19" viewBox="0 0 24 24" fil
 // Tombol "Lanjutkan dengan Google" sengaja monokrom (bukan logo warna resmi
 // Google) supaya konsisten dengan desain hitam/putih murni di seluruh app.
 export const ICON_GOOGLE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><text x="12" y="12" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="700" font-family="Arial, Helvetica, sans-serif" fill="currentColor" stroke="none">G</text></svg>`;
+
+// Ikon toggle tampilan list <-> grid thumbnail, dan tombol tutup modal foto.
+export const ICON_GRID = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>`;
+
+export const ICON_LIST = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>`;
+
+export const ICON_CLOSE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>`;

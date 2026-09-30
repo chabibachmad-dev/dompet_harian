@@ -73,6 +73,9 @@
         <header class="topbar">
           <h1 class="brand">Dompet Harian</h1>
           <div class="topbar-actions">
+            <button id="view-toggle" class="icon-btn" title="Ganti tampilan" aria-label="Ganti tampilan list/grid">
+              <span id="view-icon"></span>
+            </button>
             <button id="theme-toggle" class="icon-btn" title="Ganti tema" aria-label="Ganti tema">
               <span id="theme-icon"></span>
             </button>
@@ -160,6 +163,35 @@
           </form>
         </main>
       </section>
+    </div>
+
+    <!-- Modal popup foto struk -- dipakai di tampilan grid, klik thumbnail
+         buka ini (gambar + keterangan), bukan langsung ke form edit. -->
+    <div id="photo-modal" class="photo-modal" hidden>
+      <div id="photo-modal-backdrop" class="photo-modal-backdrop"></div>
+      <div class="photo-modal-card">
+        <button type="button" id="photo-modal-close" class="icon-btn photo-modal-close" title="Tutup" aria-label="Tutup">
+          <span id="photo-modal-close-icon"></span>
+        </button>
+        <div class="photo-modal-image-wrap">
+          <img id="photo-modal-img" alt="Foto struk" hidden />
+          <div id="photo-modal-no-photo" class="photo-modal-no-photo" hidden>
+            <span id="photo-modal-no-photo-icon"></span>
+            <span>Tidak ada foto struk</span>
+          </div>
+        </div>
+        <div class="photo-modal-info">
+          <div class="photo-modal-info-row">
+            <span id="photo-modal-category" class="photo-modal-category"></span>
+            <span id="photo-modal-amount" class="photo-modal-amount"></span>
+          </div>
+          <p id="photo-modal-note" class="photo-modal-note" hidden></p>
+          <p id="photo-modal-date" class="photo-modal-date"></p>
+          <div class="photo-modal-actions">
+            <button type="button" id="photo-modal-edit-btn" class="secondary-btn">Edit</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="src/main.js"></script>
