@@ -112,6 +112,27 @@ Kalau kamu cuma mau pakai login email/kata sandi, langkah ini **boleh dilewati**
 
 ---
 
+## Kalau foto struk muncul ikon gambar rusak (broken image)
+
+Ini bug yang sempat kejadian di versi awal: link foto yang dipakai (`drive.google.com/uc?export=view&id=...`) ternyata dimatikan Google untuk hotlink `<img>` sejak 2024, jadi selalu muncul ikon rusak walau upload-nya sendiri berhasil.
+
+**Sudah diperbaiki** di `gas/Code.gs` -- sekarang pakai `drive.google.com/thumbnail?id=...&sz=w1000` yang memang didesain untuk ini. Supaya perbaikannya aktif:
+
+1. Buka lagi project Apps Script kamu di https://script.google.com, tempel ulang isi `gas/Code.gs` yang baru (atau cari baris `const url = ...` dan ganti sesuai file ini).
+2. **Deploy → Manage deployments** → klik ikon pensil di deployment yang ada → Version: **New version** → **Deploy**. URL `/exec`-nya tetap sama, jadi `.env`/secret GitHub tidak perlu diubah.
+3. Foto yang diupload **setelah** langkah ini otomatis kepakai link yang benar.
+4. Foto yang sudah kadung tersimpan dengan link lama (rusak) perlu diperbaiki manual sekali lewat SQL Editor Supabase -- file aslinya di Drive tidak hilang, cuma link yang tersimpan di database perlu diganti formatnya:
+
+   ```sql
+   update public.expenses
+   set receipt_url = 'https://drive.google.com/thumbnail?id='
+     || substring(receipt_url from 'id=([^&]+)')
+     || '&sz=w1000'
+   where receipt_url like '%uc?export=view%';
+   ```
+
+   Jalankan sekali saja, aman diulang (baris yang sudah benar otomatis tidak match kondisi `where`-nya).
+
 ## Catatan keamanan & privasi
 
 - Beda dari ringkasan_harian, aplikasi ini beneran pakai sistem akun (Supabase Auth). Tabel `expenses` & `custom_categories` punya Row Level Security yang membatasi tiap pengguna cuma bisa membaca/mengubah baris miliknya sendiri (`user_id = auth.uid()`) -- ini dijamin di level database, bukan cuma disembunyikan di tampilan.

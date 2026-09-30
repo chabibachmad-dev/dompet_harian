@@ -60,7 +60,11 @@ function doPost(e) {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
     const fileId = file.getId();
-    const url = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    // CATATAN: sebelumnya pakai "https://drive.google.com/uc?export=view&id=..."
+    // -- Google mematikan pola link itu untuk hotlink <img> pada tahun 2024
+    // (selalu muncul ikon gambar rusak/broken image sejak saat itu). Endpoint
+    // "thumbnail" di bawah ini yang sekarang umum dipakai & terbukti jalan.
+    const url = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 
     return jsonResponse({ ok: true, fileId, url });
   } catch (err) {
