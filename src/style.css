@@ -1,0 +1,582 @@
+/* Desain "Snail OS" -- murni hitam/putih, monospace, tanpa warna sama sekali
+   (termasuk tanpa warna khas Google di tombol "Lanjutkan dengan Google").
+   Token & pola komponen dasar sengaja disamakan persis dengan proyek
+   ringkasan_harian supaya kedua app terasa satu keluarga. */
+
+:root {
+  --bg: #ffffff;
+  --bg-card: #ffffff;
+  --text: #000000;
+  --text-muted: #5c5c5c;
+  --border: #000000;
+  --accent: #000000;
+  --accent-contrast: #ffffff;
+  --notify-bg: #f0f0f0;
+  --link: #000000;
+  --danger: #000000;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --bg-card: #000000;
+  --text: #ffffff;
+  --text-muted: #a6a6a6;
+  --border: #ffffff;
+  --accent: #ffffff;
+  --accent-contrast: #000000;
+  --notify-bg: #141414;
+  --link: #ffffff;
+  --danger: #ffffff;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Ubuntu Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 0 calc(16px + env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px)
+    calc(16px + env(safe-area-inset-left, 0px));
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 0 16px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+
+.brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+.icon-btn--attn {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 32px;
+}
+
+.primary-btn {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border: 1.5px solid var(--text);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.secondary-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.detail-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* Semua input teks/angka/tanggal harus >= 16px -- di bawah itu Safari iOS
+   otomatis nge-zoom seluruh halaman begitu input difokus (pelajaran dari
+   bug di ringkasan_harian), memotong tombol lain dari layar. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* ---------- Layar login/daftar ---------- */
+
+#screen-auth {
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.auth-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 10vh;
+}
+
+.auth-brand {
+  font-size: 1.4rem;
+}
+
+.auth-tagline {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  text-align: center;
+  margin: 0 0 28px;
+  max-width: 320px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 360px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-tabs {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.auth-tab--active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-form input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.auth-submit {
+  margin-top: 4px;
+}
+
+.auth-error {
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.35;
+}
+
+.auth-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ---------- Layar daftar pengeluaran ---------- */
+
+.summary-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.summary-total {
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.expense-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.expense-date-heading {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 6px 2px 0;
+}
+
+.expense-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.expense-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.expense-item:last-child {
+  border-bottom: none;
+}
+
+.expense-item:active {
+  background: var(--notify-bg);
+}
+
+.expense-item-avatar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--notify-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.expense-item-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.expense-item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.expense-item-category {
+  font-size: 0.92rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expense-item-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expense-item-amount {
+  flex-shrink: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.footer {
+  text-align: center;
+  /* Padding bawah ekstra supaya teks footer tidak ketiban tombol "+"
+     (position: fixed) waktu discroll sampai paling bawah. */
+  padding: 16px 0 96px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.fab {
+  position: fixed;
+  right: max(20px, calc(50vw - 340px));
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
+.fab:active {
+  transform: scale(0.94);
+}
+
+/* ---------- Layar tambah/edit pengeluaran ---------- */
+
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 14px 0 2px;
+}
+
+.field-label:first-child {
+  margin-top: 0;
+}
+
+.expense-form input[type="date"],
+.expense-form input[type="number"],
+.expense-form select,
+.expense-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.expense-form textarea {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.4;
+}
+
+.category-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.category-row select {
+  flex: 1;
+}
+
+.add-category-inline {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.add-category-inline input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.receipt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.receipt-preview {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.receipt-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.receipt-remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--text);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.receipt-capture-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 220px;
+}
+
+.expense-save-btn {
+  margin-top: 22px;
+}
+
+@media (max-width: 420px) {
+  .brand {
+    font-size: 1.05rem;
+  }
+  .auth-card {
+    padding: 16px;
+  }
+}

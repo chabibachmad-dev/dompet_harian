@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Dompet Harian</title>
+    <meta name="description" content="Catat pengeluaran harian, lengkap dengan foto struk." />
+
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta id="meta-theme-color" name="theme-color" content="#ffffff" />
+
+    <!-- Dukungan "Add to Home Screen" di iOS/Safari -->
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Dompet Harian" />
+
+    <link rel="icon" href="icons/icon-192.png" />
+
+    <!-- Font monospace ala e-ink/"paper" (mengikuti gaya Snail OS di ringkasan_harian) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Layar 1: login / daftar akun -->
+      <section id="screen-auth" class="screen">
+        <div class="auth-wrap">
+          <h1 class="brand auth-brand">Dompet Harian</h1>
+          <p class="auth-tagline">Catat pengeluaran harianmu, lengkap dengan foto struk.</p>
+
+          <div class="auth-card">
+            <div class="auth-tabs">
+              <button type="button" id="auth-tab-login" class="auth-tab auth-tab--active" data-mode="login">
+                Masuk
+              </button>
+              <button type="button" id="auth-tab-signup" class="auth-tab" data-mode="signup">Daftar</button>
+            </div>
+
+            <form id="auth-form" class="auth-form">
+              <input id="auth-email" type="email" autocomplete="email" placeholder="Email" required />
+              <input
+                id="auth-password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Kata sandi"
+                required
+                minlength="6"
+              />
+              <p id="auth-error" class="auth-error" hidden></p>
+              <p id="auth-info" class="auth-error" hidden></p>
+              <button type="submit" id="auth-submit" class="primary-btn auth-submit">Masuk</button>
+            </form>
+
+            <div class="auth-divider"><span>atau</span></div>
+
+            <button type="button" id="auth-google-btn" class="secondary-btn auth-google-btn">
+              <span id="google-icon"></span>
+              <span>Lanjutkan dengan Google</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layar 2: daftar pengeluaran -->
+      <section id="screen-list" class="screen" hidden>
+        <header class="topbar">
+          <h1 class="brand">Dompet Harian</h1>
+          <div class="topbar-actions">
+            <button id="theme-toggle" class="icon-btn" title="Ganti tema" aria-label="Ganti tema">
+              <span id="theme-icon"></span>
+            </button>
+            <button id="logout-btn" class="icon-btn" title="Keluar" aria-label="Keluar">
+              <span id="logout-icon"></span>
+            </button>
+          </div>
+        </header>
+
+        <main class="content">
+          <div class="summary-card">
+            <span class="summary-label">Total bulan ini</span>
+            <span id="summary-total" class="summary-total">Rp 0</span>
+          </div>
+
+          <section class="expense-list-section">
+            <div id="expense-list-status" class="status-text" hidden></div>
+            <div id="expense-list-empty" class="status-text" hidden>
+              Belum ada pengeluaran yang dicatat. Tap tombol "+" untuk mulai catat.
+            </div>
+            <div id="expense-list-wrap"></div>
+          </section>
+        </main>
+
+        <footer class="footer">
+          <p>Data tersimpan otomatis ke akunmu.</p>
+        </footer>
+
+        <button type="button" id="add-expense-fab" class="fab" title="Tambah pengeluaran" aria-label="Tambah pengeluaran">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+        </button>
+      </section>
+
+      <!-- Layar 3: tambah / edit pengeluaran -->
+      <section id="screen-expense" class="screen" hidden>
+        <header class="topbar detail-topbar">
+          <button id="expense-back-btn" class="icon-btn" title="Kembali" aria-label="Kembali">←</button>
+          <h1 id="expense-form-title" class="detail-title">Tambah Pengeluaran</h1>
+          <button type="button" id="expense-delete-btn" class="icon-btn" title="Hapus" aria-label="Hapus" hidden>
+            <span id="delete-icon"></span>
+          </button>
+        </header>
+
+        <main class="content">
+          <form id="expense-form" class="expense-form">
+            <label class="field-label" for="expense-date">Tanggal</label>
+            <input id="expense-date" type="date" required />
+
+            <label class="field-label" for="expense-amount">Nominal (Rp)</label>
+            <input id="expense-amount" type="number" inputmode="numeric" min="0" step="1" placeholder="0" required />
+
+            <label class="field-label" for="expense-category">Kategori</label>
+            <div class="category-row">
+              <select id="expense-category" required></select>
+              <button type="button" id="add-category-btn" class="icon-btn" title="Tambah kategori baru" aria-label="Tambah kategori baru">+</button>
+            </div>
+            <div id="add-category-inline" class="add-category-inline" hidden>
+              <input id="new-category-input" type="text" placeholder="Nama kategori baru" />
+              <button type="button" id="save-category-btn" class="secondary-btn">Simpan</button>
+              <button type="button" id="cancel-category-btn" class="secondary-btn">Batal</button>
+            </div>
+
+            <label class="field-label" for="expense-note">Catatan (opsional)</label>
+            <textarea id="expense-note" rows="2" placeholder="Contoh: makan siang tim"></textarea>
+
+            <label class="field-label">Foto struk (opsional)</label>
+            <div class="receipt-field">
+              <div id="receipt-preview" class="receipt-preview" hidden>
+                <img id="receipt-preview-img" alt="Foto struk" />
+                <button type="button" id="receipt-remove-btn" class="receipt-remove-btn" aria-label="Hapus foto">×</button>
+              </div>
+              <button type="button" id="receipt-capture-btn" class="secondary-btn receipt-capture-btn">
+                <span id="camera-icon"></span>
+                <span id="receipt-capture-label">Ambil / Pilih Foto</span>
+              </button>
+              <input id="receipt-input" type="file" accept="image/*" capture="environment" hidden />
+              <p id="receipt-status" class="status-text" hidden></p>
+            </div>
+
+            <p id="expense-error" class="auth-error" hidden></p>
+
+            <button type="submit" id="expense-save-btn" class="primary-btn expense-save-btn">Simpan</button>
+          </form>
+        </main>
+      </section>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
